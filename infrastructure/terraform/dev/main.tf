@@ -3,7 +3,7 @@ module "infra-interview-cluster" {
   cluster_name = "infra-interview-cluster-dev"
 
   number_of_master_nodes = 1
-  number_of_worker_nodes = 3
+  number_of_worker_nodes = 2
 
   install_ingress    = true
   install_monitoring = true
