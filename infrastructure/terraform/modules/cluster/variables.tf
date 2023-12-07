@@ -26,9 +26,3 @@ variable "install_monitoring" {
   description = "Install monitoring stack?"
   default     = false
 }
-
-variable "install_ingress" {
-  type        = bool
-  description = "Install ingress stack?"
-  default     = false
-}

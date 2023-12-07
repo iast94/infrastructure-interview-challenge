@@ -10,6 +10,18 @@ resource "kind_cluster" "main" {
       for_each = range(var.number_of_master_nodes)
       content {
         role = "control-plane"
+        kubeadm_config_patches = [
+          "kind: InitConfiguration\nnodeRegistration:\n  kubeletExtraArgs:\n    node-labels: \"ingress-ready=true\"\n"
+        ]
+
+        extra_port_mappings {
+            container_port = 80
+            host_port      = 80
+        }
+        extra_port_mappings {
+            container_port = 443
+            host_port      = 443
+        }
       }
     }
 
@@ -19,5 +31,9 @@ resource "kind_cluster" "main" {
         role = "worker"
       }
     }
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml"
   }
 }
