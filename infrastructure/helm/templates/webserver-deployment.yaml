@@ -32,6 +32,8 @@ spec:
         volumeMounts:
         - name: webserver-config
           mountPath: /etc/nginx/conf.d
+        resources:
+        {{ .Values.webserver.resources | toYaml | nindent 10 }}
       volumes:
       - name: webserver-config
         configMap:

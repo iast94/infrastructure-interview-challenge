@@ -62,6 +62,8 @@ spec:
         envFrom:
         - secretRef:
             name: {{ .Release.Name | trunc 50   }}-db-conn-info
+        resources:
+        {{ .Values.app.resources | toYaml | nindent 10 }}
       volumes:
       - name: init-scripts
         configMap:

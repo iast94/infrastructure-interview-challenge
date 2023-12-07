@@ -1,0 +1,17 @@
+{{- if .Values.webserver.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name | trunc 49   }}-webserver-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name | trunc 53   }}-webserver
+  minReplicas: {{ .Values.webserver.hpa.minReplicas }}
+  maxReplicas: {{ .Values.webserver.hpa.maxReplicas }}
+  metrics:
+  {{- .Values.webserver.hpa.metrics | toYaml | nindent 2 }}
+  behavior:
+  {{- .Values.webserver.hpa.behavior | toYaml | nindent 4 }}
+{{- end }}
