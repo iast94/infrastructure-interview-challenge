@@ -1,4 +1,4 @@
-app: 
+app:
   image: talessrc/infrastructure-interview-app:1.0.0
   port: 3000
   replicas: 1
@@ -14,3 +14,21 @@ database:
   user:
     name: root
     password: testpassword
+
+webserver:
+  enabled: true
+  image: nginx:1.25.3-alpine
+  port: 80
+  service:
+    type: ClusterIP
+
+ingress:
+  enabled: true
+  annotations:
+  hosts:
+  - name: localhost
+  - name: interview.local
+  tls: []
+  # - secretName: interview-app-tls
+  #   hosts:
+  #   - interview.local

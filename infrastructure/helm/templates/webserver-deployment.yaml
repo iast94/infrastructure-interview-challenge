@@ -1,0 +1,39 @@
+{{- if .Values.webserver.enabled  }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name | trunc 53   }}-webserver
+  labels:
+    component: webserver
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      component: webserver
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        component: webserver
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+      - name: webserver
+        image: {{ .Values.webserver.image }}
+        ports:
+        - containerPort: {{ .Values.app.port }}
+        volumeMounts:
+        - name: webserver-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: webserver-config
+        configMap:
+          name: {{ .Release.Name | trunc 46   }}-webserver-config
+{{- end  }}

@@ -1,0 +1,23 @@
+{{- if .Values.webserver.enabled  }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name | trunc 49 }}-webserver-svc
+  labels:
+    {{ include "infra-interview-test.labels" . }}
+spec:
+  selector:
+    component: webserver
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  type: {{ .Values.webserver.service.type }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.webserver.port }}
+    targetPort: {{ .Values.webserver.port }}
+    {{- if .Values.app.service.type }}
+    nodePort: {{ .Values.webserver.service.nodePort }}
+    {{- end }}
+{{- end }}
