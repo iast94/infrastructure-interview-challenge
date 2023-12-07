@@ -1,5 +1,5 @@
 app:
-  image: talessrc/infrastructure-interview-app:1.0.0
+  image: talessrc/private-infrastructure-interview-app:1.0.0
   port: 3000
   replicas: 1
   service:
@@ -75,3 +75,8 @@ ingress:
   # - secretName: interview-app-tls
   #   hosts:
   #   - interview.local
+
+imagePullSecret:
+  # registry: https://index.docker.io/v1/
+  # username: <your-username>
+  # password: <your-password>

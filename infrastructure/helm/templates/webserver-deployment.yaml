@@ -34,6 +34,10 @@ spec:
           mountPath: /etc/nginx/conf.d
         resources:
         {{ .Values.webserver.resources | toYaml | nindent 10 }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
       volumes:
       - name: webserver-config
         configMap:

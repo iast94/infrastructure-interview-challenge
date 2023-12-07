@@ -64,6 +64,10 @@ spec:
             name: {{ .Release.Name | trunc 50   }}-db-conn-info
         resources:
         {{ .Values.app.resources | toYaml | nindent 10 }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
       volumes:
       - name: init-scripts
         configMap:

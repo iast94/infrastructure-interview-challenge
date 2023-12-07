@@ -41,6 +41,10 @@ spec:
           mountPath: /var/lib/mysql
         - name: init-scripts
           mountPath: /docker-entrypoint-initdb.d
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
       volumes:
       - name: init-scripts
         configMap:
