@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name | trunc 59   }}-app
+  labels:
+    component: app
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      component: app
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        component: app
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      initContainers:
+      - name: wait-for-database
+        image: mariadb:5.5
+        env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_HOST
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_PASSWORD
+        command:
+        - /bin/sh
+        - -c
+        - /script/wait-db.sh
+        volumeMounts:
+        - name: init-scripts
+          subPath: wait-db.sh
+          mountPath: /script/wait-db.sh
+      - name: run-migrations
+        image: {{ .Values.app.image }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name | trunc 50   }}-db-conn-info
+        command:
+        - yarn
+        - typeorm
+        - migration:run
+      containers:
+      - name: app
+        image: {{ .Values.app.image }}
+        ports:
+        - containerPort: {{ .Values.app.port }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name | trunc 50   }}-db-conn-info
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: {{ .Release.Name | trunc 46   }}-app-init-scripts
+          defaultMode: 0550

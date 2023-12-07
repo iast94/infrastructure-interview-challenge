@@ -1,0 +1,16 @@
+app: 
+  image: talessrc/infrastructure-interview-app:1.0.0
+  port: 3000
+  replicas: 1
+  service:
+    type: ClusterIP
+
+database:
+  type: mariadb
+  image: mariadb:5.5
+  dbName: interview
+  service:
+    type: ClusterIP
+  user:
+    name: root
+    password: testpassword

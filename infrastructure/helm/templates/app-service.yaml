@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name | trunc 55 }}-app-svc
+  labels:
+    {{ include "infra-interview-test.labels" . }}
+    {{ .Values.app.labels }}
+spec:
+  selector:
+    component: app
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  type: {{ .Values.app.service.type }}
+  ports:
+  - protocol: TCP
+    port: {{ .Values.app.port }}
+    targetPort: {{ .Values.app.port }}
+    {{- if .Values.app.service.type }}
+    nodePort: {{ .Values.app.service.nodePort }}
+    {{- end }}
