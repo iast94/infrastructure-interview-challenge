@@ -9,4 +9,8 @@ resource "helm_release" "monitoring" {
   namespace        = "monitoring"
 
   depends_on = [kind_cluster.main]
+
+  lifecycle {
+    replace_triggered_by = [kind_cluster.main]
+  }
 }

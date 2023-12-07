@@ -13,4 +13,8 @@ resource "helm_release" "metrics_server" {
     name  = "args"
     value = ["--kubelet-insecure-tls"]
   }
+
+  lifecycle {
+    replace_triggered_by = [kind_cluster.main]
+  }
 }
