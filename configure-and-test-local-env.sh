@@ -3,18 +3,24 @@
 help() {
   echo "
 Usage:
-$0 [-i -r -n]
+$0 [-i -U -P -r -n -h]
 
 Flags:
-  -i   Image to be used by the application
-  -U   Docker username to pull image (Just set if the image is private)
-  -P   Docker password to pull image (Just set if the image is private)
-  -r   Helm release name
-  -n   Namespace to install helm release
+  -i   Image to be used by the application   Default value: 
+                                             talessrc/infrastructure-interview-app:1.0.0
+  -U   Docker username to pull image       
+       (Just set if the image is private)
+  -P   Docker password to pull image
+       (Just set if the image is private)
+  -r   Helm release name                     Default value: interview
+  -n   Namespace to install helm release     Default value: interview
+  -h   Help
 "
 }
 
-namespace="default"
+image_name="talessrc/infrastructure-interview-app:1.0.0"
+release_name="interview"
+namespace="interview"
 
 while getopts i:U:Pr:n:h flag
 do
