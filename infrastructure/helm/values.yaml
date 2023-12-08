@@ -2,6 +2,7 @@ app:
   image: talessrc/infrastructure-interview-app:1.0.0
   port: 3000
   replicas: 1
+  imagePullPolicy: Always
   service:
     type: ClusterIP
   resources:
@@ -35,7 +36,8 @@ app:
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 180
-
+  securityContext:
+    runAsUser: 100
 
 database:
   type: mariadb
@@ -54,6 +56,8 @@ database:
     initialDelaySeconds: 5
     periodSeconds: 2
     timeoutSeconds: 1
+  securityContext:
+    runAsUser: 999
 
 webserver:
   enabled: true
@@ -92,6 +96,8 @@ webserver:
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 180
+  securityContext:
+    runAsUser: 0
 
 ingress:
   enabled: true

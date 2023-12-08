@@ -27,6 +27,7 @@ spec:
       containers:
       - name: webserver
         image: {{ .Values.webserver.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
         ports:
         - containerPort: {{ .Values.app.port }}
         volumeMounts:
@@ -48,6 +49,8 @@ spec:
           initialDelaySeconds: {{ .Values.webserver.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.webserver.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.webserver.readinessProbe.timeoutSeconds }}
+        securityContext:
+          {{- .Values.database.securityContext | toYaml | nindent 10 }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred

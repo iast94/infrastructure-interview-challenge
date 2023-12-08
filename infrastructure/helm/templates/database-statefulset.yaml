@@ -27,6 +27,7 @@ spec:
       containers:
       - name: database
         image: {{ .Values.database.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
         ports:
         {{- if or (eq .Values.database.type "mariadb") (eq .Values.database.type "mysql") }}
         - containerPort: 3306
@@ -53,6 +54,8 @@ spec:
           initialDelaySeconds: {{ .Values.database.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.database.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.database.readinessProbe.timeoutSeconds }}
+        securityContext:
+          {{- .Values.database.securityContext | toYaml | nindent 10 }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred

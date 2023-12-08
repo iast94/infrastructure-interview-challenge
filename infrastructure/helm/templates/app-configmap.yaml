@@ -9,7 +9,7 @@ data:
   wait-db.sh: |
     while true; do
       {{- if or (eq .Values.database.type "mariadb") (eq .Values.database.type "mysql") }}
-      mysql -h $DB_HOST -p$DB_PASSWORD -e "USE mysql;" 2>/dev/null
+      mysql -h $DB_HOST -p$DB_PASSWORD -u root -e "USE mysql;" 2>/dev/null
       {{- else if eq .Values.database.type "postgresql" }}
       psql -h $DB_HOST -d $DB_NAME -c "SELECT 1;" > /dev/null 2>&1
       {{- end }}

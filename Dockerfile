@@ -8,13 +8,17 @@ RUN yarn install
 
 RUN yarn build
 
-FROM node:alpine
+FROM node:21-alpine3.18
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+USER appuser
 
 WORKDIR /app
 
-COPY package.json yarn.lock /app/
+COPY --chown=appuser:appgroup package.json yarn.lock /app/
 
-COPY --from=builder /app/dist /app/src
+COPY --from=builder --chown=appuser:appgroup /app/dist /app/src
 
 RUN yarn install --production
 

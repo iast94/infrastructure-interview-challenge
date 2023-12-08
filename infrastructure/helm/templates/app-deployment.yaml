@@ -47,6 +47,7 @@ spec:
           mountPath: /script/wait-db.sh
       - name: run-migrations
         image: {{ .Values.app.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
         envFrom:
         - secretRef:
             name: {{ .Release.Name | trunc 50   }}-db-conn-info
@@ -57,6 +58,7 @@ spec:
       containers:
       - name: app
         image: {{ .Values.app.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
         ports:
         - containerPort: {{ .Values.app.port }}
         envFrom:
@@ -78,6 +80,8 @@ spec:
           initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+        securityContext:
+         {{- .Values.app.securityContext | toYaml | nindent 10 }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred
