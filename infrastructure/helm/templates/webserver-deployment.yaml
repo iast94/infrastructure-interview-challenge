@@ -7,7 +7,7 @@ metadata:
     component: webserver
     {{- include "infra-interview-test.labels" . | nindent 4}}
 spec:
-  replicas: {{ .Values.app.replicas }}
+  replicas: {{ .Values.webserver.replicas }}
   selector:
     matchLabels:
       component: webserver
@@ -15,6 +15,8 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
       app.kubernetes.io/managed-by: {{ .Release.Service }}
+  strategy:
+    {{ .Values.webserver.deployStrategy | toYaml | nindent 4}}
   template:
     metadata:
       labels:
@@ -27,9 +29,9 @@ spec:
       containers:
       - name: webserver
         image: {{ .Values.webserver.image }}
-        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.webserver.imagePullPolicy }}
         ports:
-        - containerPort: {{ .Values.app.port }}
+        - containerPort: {{ .Values.webserver.port }}
         volumeMounts:
         - name: webserver-config
           mountPath: /etc/nginx/conf.d
@@ -50,7 +52,7 @@ spec:
           periodSeconds: {{ .Values.webserver.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.webserver.readinessProbe.timeoutSeconds }}
         securityContext:
-          {{- .Values.database.securityContext | toYaml | nindent 10 }}
+          {{- .Values.webserver.securityContext | toYaml | nindent 10 }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred

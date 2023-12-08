@@ -18,7 +18,7 @@ spec:
   - protocol: TCP
     port: {{ .Values.webserver.port }}
     targetPort: {{ .Values.webserver.port }}
-    {{- if .Values.app.service.type }}
+    {{- if .Values.webserver.service.type }}
     nodePort: {{ .Values.webserver.service.nodePort }}
     {{- end }}
 {{- end }}
