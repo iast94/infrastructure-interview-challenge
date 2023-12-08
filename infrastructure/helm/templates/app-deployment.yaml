@@ -63,7 +63,21 @@ spec:
         - secretRef:
             name: {{ .Release.Name | trunc 50   }}-db-conn-info
         resources:
-        {{ .Values.app.resources | toYaml | nindent 10 }}
+          {{- .Values.app.resources | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.app.livenessProbe.httpGetPath }}
+            port: {{ .Values.app.port }}
+          initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.app.readinessProbe.httpGetPath }}
+            port: {{ .Values.app.port }}
+          initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred

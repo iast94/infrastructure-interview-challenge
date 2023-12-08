@@ -33,7 +33,21 @@ spec:
         - name: webserver-config
           mountPath: /etc/nginx/conf.d
         resources:
-        {{ .Values.webserver.resources | toYaml | nindent 10 }}
+          {{ .Values.webserver.resources | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.webserver.livenessProbe.httpGetPath }}
+            port: {{ .Values.webserver.port }}
+          initialDelaySeconds: {{ .Values.webserver.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webserver.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.webserver.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.webserver.readinessProbe.httpGetPath }}
+            port: {{ .Values.webserver.port }}
+          initialDelaySeconds: {{ .Values.webserver.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webserver.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.webserver.readinessProbe.timeoutSeconds }}
       {{- if .Values.imagePullSecret }}
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred

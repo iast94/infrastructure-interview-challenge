@@ -1,5 +1,5 @@
 app:
-  image: talessrc/private-infrastructure-interview-app:1.0.0
+  image: talessrc/infrastructure-interview-app:1.0.0
   port: 3000
   replicas: 1
   service:
@@ -11,6 +11,16 @@ app:
     limits:
       cpu: "0.5"
       memory: 150Mi
+  livenessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 2
+  readinessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 2
   hpa:
     enabled: true
     minReplicas: 1
@@ -36,6 +46,14 @@ database:
   user:
     name: root
     password: testpassword
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 2
+    timeoutSeconds: 1
 
 webserver:
   enabled: true
@@ -50,6 +68,16 @@ webserver:
     limits:
       cpu: "0.15"
       memory: 300Mi
+  livenessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readinessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 5
+    periodSeconds: 2
+    timeoutSeconds: 1
   hpa:
     enabled: true
     minReplicas: 1
