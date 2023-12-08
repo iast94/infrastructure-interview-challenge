@@ -3,6 +3,9 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Release.Name | trunc 49   }}-webserver-hpa
+  labels:
+    component: webserver-hpa
+    {{- include "infra-interview-test.labels" . | nindent 4}}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

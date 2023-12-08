@@ -4,7 +4,8 @@ kind: Service
 metadata:
   name: {{ .Release.Name | trunc 49 }}-webserver-svc
   labels:
-    {{ include "infra-interview-test.labels" . }}
+    component: webserver-service
+    {{- include "infra-interview-test.labels" . | nindent 4}}
 spec:
   selector:
     component: webserver

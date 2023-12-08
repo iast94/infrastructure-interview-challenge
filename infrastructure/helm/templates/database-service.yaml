@@ -3,9 +3,8 @@ kind: Service
 metadata:
   name: {{ .Release.Name | trunc 56 }}-db-svc
   labels:
-    component: database
-    {{ include "infra-interview-test.labels" . }}
-    {{ .Values.app.labels }}
+    component: database-service
+    {{- include "infra-interview-test.labels" . | nindent 4}}
 spec:
   selector:
     component: database
