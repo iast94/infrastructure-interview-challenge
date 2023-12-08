@@ -55,10 +55,12 @@ helm upgrade -n $namespace --create-namespace --wait \
 echo
 
 webserver_url=$(kubectl get svc -n $namespace -o \
-custom-columns=:.metadata.name -l \
+custom-columns=:.metadata.name --no-headers -l \
 component="webserver-service")
 
 echo "Testing stack scalability and availability during load peaks (press ctrl+c to stop)"
 kubectl run -i --tty load-generator --rm -n $namespace \
 --image=busybox:1.28 --restart=Never -- \
 /bin/sh -c "while sleep 0.01; do wget -q -O- http://$webserver_url/posts; done"
+
+kubectl delete po -n $namespace load-generator
