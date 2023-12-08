@@ -80,3 +80,6 @@ imagePullSecret:
   # registry: https://index.docker.io/v1/
   # username: <your-username>
   # password: <your-password>
+
+networkPolicy:
+  allowIngressOnlyWithinNamespace: true
