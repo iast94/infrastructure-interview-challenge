@@ -33,11 +33,11 @@ done
 
 echo
 echo "Iniating terraform..."
-terraform -chdir=infrastructure/terraform/dev init
+terraform -chdir=infrastructure/terraform/environments/local init
 echo
 
 echo "Creating infrastructure..."
-terraform -chdir=infrastructure/terraform/dev apply -auto-approve
+terraform -chdir=infrastructure/terraform/environments/local apply -auto-approve
 echo
 
 image_pull_secret=""
