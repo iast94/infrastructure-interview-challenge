@@ -26,6 +26,17 @@ spec:
         app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
+      initContainers:
+      - name: wait-for-app
+        image: busybox:1.28
+        command:
+        - /bin/sh
+        - -c
+        - /script/wait-for-app.sh
+        volumeMounts:
+        - name: webserver-init-config
+          subPath: wait-for-app.sh
+          mountPath: /script/wait-for-app.sh
       containers:
       - name: webserver
         image: {{ .Values.webserver.image }}
@@ -60,5 +71,9 @@ spec:
       volumes:
       - name: webserver-config
         configMap:
-          name: {{ .Release.Name | trunc 46   }}-webserver-config
+          name: {{ .Release.Name | trunc 46 }}-webserver-config
+      - name: webserver-init-config
+        configMap:
+          name: {{ .Release.Name | trunc 41 }}-webserver-init-config
+          defaultMode: 0550
 {{- end  }}
