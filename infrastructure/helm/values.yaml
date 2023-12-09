@@ -2,6 +2,7 @@ app:
   image: talessrc/infrastructure-interview-app:1.0.0
   port: 3000
   replicas: 2
+  minAvailable: "75%"
   imagePullPolicy: Always
   service:
     type: ClusterIP
@@ -67,6 +68,8 @@ webserver:
   enabled: true
   image: nginx:1.25.3-alpine
   port: 80
+  replicas: 1
+  minAvailable: 1
   service:
     type: ClusterIP
   resources:
