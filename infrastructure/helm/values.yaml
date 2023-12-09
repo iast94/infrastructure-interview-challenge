@@ -4,6 +4,7 @@ app:
   replicas: 2
   minAvailable: "75%"
   imagePullPolicy: Always
+  tryToSchedulePodsInDifferentNodes: true
   service:
     type: ClusterIP
   resources:
@@ -33,7 +34,7 @@ app:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: 60
     behavior:
       scaleDown:
         stabilizationWindowSeconds: 180
@@ -70,6 +71,7 @@ webserver:
   port: 80
   replicas: 1
   minAvailable: 1
+  tryToSchedulePodsInDifferentNodes: true
   service:
     type: ClusterIP
   resources:

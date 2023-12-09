@@ -26,6 +26,36 @@ spec:
         app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
+      {{- if .Values.webserver.tryToSchedulePodsInDifferentNodes  }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - webserver
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ .Chart.Name }}
+                - key: app.kubernetes.io/instance
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+                - key: app.kubernetes.io/version
+                  operator: In
+                  values:
+                  - {{ .Chart.AppVersion | quote }}
+                - key: app.kubernetes.io/managed-by
+                  operator: In
+                  values:
+                  - {{ .Release.Service }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
       initContainers:
       - name: wait-for-app
         image: busybox:1.28

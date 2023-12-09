@@ -24,6 +24,8 @@ spec:
         app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
+      affinity:
+        {{ .Values.app.affinity | toYaml | nindent 8 }}
       containers:
       - name: database
         image: {{ .Values.database.image }}
