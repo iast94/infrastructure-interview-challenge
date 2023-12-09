@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_infra-interview-cluster"></a> [infra-interview-cluster](#module\_infra-interview-cluster) | ../modules/cluster | n/a |
+| <a name="module_infra-interview-cluster"></a> [infra-interview-cluster](#module\_infra-interview-cluster) | ../../modules/cluster | n/a |
 
 ## Resources
 

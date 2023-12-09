@@ -21,7 +21,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [helm_release.ingress](https://registry.terraform.io/providers/hashicorp/helm/2.12.1/docs/resources/release) | resource |
+| [helm_release.metrics_server](https://registry.terraform.io/providers/hashicorp/helm/2.12.1/docs/resources/release) | resource |
 | [helm_release.monitoring](https://registry.terraform.io/providers/hashicorp/helm/2.12.1/docs/resources/release) | resource |
 | [kind_cluster.main](https://registry.terraform.io/providers/tehcyx/kind/0.2.1/docs/resources/cluster) | resource |
 
@@ -30,7 +30,6 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | n/a | yes |
-| <a name="input_install_ingress"></a> [install\_ingress](#input\_install\_ingress) | Install ingress stack? | `bool` | `false` | no |
 | <a name="input_install_monitoring"></a> [install\_monitoring](#input\_install\_monitoring) | Install monitoring stack? | `string` | `false` | no |
 | <a name="input_node_image"></a> [node\_image](#input\_node\_image) | Container image used as a kubernetes node | `string` | `"kindest/node:v1.27.1"` | no |
 | <a name="input_number_of_master_nodes"></a> [number\_of\_master\_nodes](#input\_number\_of\_master\_nodes) | Number of master nodes | `number` | `1` | no |
