@@ -4,4 +4,7 @@ module "infra-interview-cluster" {
 
   number_of_master_nodes = 1
   number_of_worker_nodes = 2
+
+  install_monitoring = false
+  enable_hpa         = true
 }

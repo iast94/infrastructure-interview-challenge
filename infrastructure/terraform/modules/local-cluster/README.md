@@ -30,6 +30,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | n/a | yes |
+| <a name="input_enable_hpa"></a> [enable\_hpa](#input\_enable\_hpa) | Enable horizontal pod autoscale? | `string` | `false` | no |
 | <a name="input_install_monitoring"></a> [install\_monitoring](#input\_install\_monitoring) | Install monitoring stack? | `string` | `false` | no |
 | <a name="input_node_image"></a> [node\_image](#input\_node\_image) | Container image used as a kubernetes node | `string` | `"kindest/node:v1.27.1"` | no |
 | <a name="input_number_of_master_nodes"></a> [number\_of\_master\_nodes](#input\_number\_of\_master\_nodes) | Number of master nodes | `number` | `1` | no |

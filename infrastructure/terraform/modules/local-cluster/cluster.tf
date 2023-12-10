@@ -15,12 +15,12 @@ resource "kind_cluster" "main" {
         ]
 
         extra_port_mappings {
-            container_port = 80
-            host_port      = 80
+          container_port = 80
+          host_port      = 80
         }
         extra_port_mappings {
-            container_port = 443
-            host_port      = 443
+          container_port = 443
+          host_port      = 443
         }
       }
     }
@@ -35,5 +35,13 @@ resource "kind_cluster" "main" {
 
   provisioner "local-exec" {
     command = "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml"
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl patch -n ingress-nginx deployment ingress-nginx-controller -p '{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"controller\",\"resources\":{\"requests\":{\"cpu\":\"200m\",\"memory\":\"150Mi\"},\"limits\":{\"cpu\":\"500m\",\"memory\":\"300Mi\"}}}]}}}}'"
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl wait -n ingress-nginx --for=condition=ready --timeout=60s pod -l app.kubernetes.io/component=controller"
   }
 }

@@ -26,3 +26,9 @@ variable "install_monitoring" {
   description = "Install monitoring stack?"
   default     = false
 }
+
+variable "enable_hpa" {
+  type        = string
+  description = "Enable horizontal pod autoscale?"
+  default     = false
+}
