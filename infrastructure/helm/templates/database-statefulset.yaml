@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name | trunc 54   }}-database
+  labels:
+    component: database
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  serviceName: "nginx"
+  replicas: 1
+  selector:
+    matchLabels:
+      component: database
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        component: database
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      affinity:
+        {{ .Values.app.affinity | toYaml | nindent 8 }}
+      containers:
+      - name: database
+        image: {{ .Values.database.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
+        resources:
+          {{- .Values.database.resources | toYaml | nindent 10 }}
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 55   }}-db-info
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_USERNAME
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_DATABASE
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        livenessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-p$MYSQL_ROOT_PASSWORD"]
+          initialDelaySeconds: {{ .Values.database.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.database.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.database.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          exec:
+            command: ["mysqladmin", "ping", "-p$MYSQL_ROOT_PASSWORD"]
+          initialDelaySeconds: {{ .Values.database.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.database.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.database.readinessProbe.timeoutSeconds }}
+        securityContext:
+          {{- .Values.database.securityContext | toYaml | nindent 10 }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: {{ .Values.database.pvcStorage }}

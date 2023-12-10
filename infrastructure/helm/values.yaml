@@ -1,0 +1,140 @@
+app:
+  image: talessrc/infrastructure-interview-app:1.0.0
+  port: 3000
+  replicas: 3
+  minAvailable: "75%"
+  imagePullPolicy: Always
+  tryToSchedulePodsInDifferentNodes: true
+  database:
+    name: socialmedia
+    password: change-it
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: "0.3"
+      memory: 100Mi
+    limits:
+      cpu: "0.6"
+      memory: 300Mi
+  livenessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 40
+    periodSeconds: 10
+    timeoutSeconds: 2
+  readinessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 20
+    periodSeconds: 5
+    timeoutSeconds: 2
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 180
+  securityContext:
+    runAsUser: 100
+  deployStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+
+database:
+  type: mariadb
+  image: mariadb:5.5
+  rootPassword: change-it
+  service:
+    type: ClusterIP
+  pvcStorage: "2Gi"
+  resources:
+    requests:
+      cpu: "0.3"
+      memory: 100Mi
+    limits:
+      cpu: "0.6"
+      memory: 300Mi
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 2
+    timeoutSeconds: 1
+  securityContext:
+    runAsUser: 999
+
+webserver:
+  enabled: true
+  image: nginx:1.25.3-alpine
+  port: 80
+  replicas: 1
+  minAvailable: 1
+  tryToSchedulePodsInDifferentNodes: true
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: "0.15"
+      memory: 50Mi
+    limits:
+      cpu: "0.3"
+      memory: 200Mi
+  livenessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readinessProbe:
+    httpGetPath: /posts
+    initialDelaySeconds: 5
+    periodSeconds: 2
+    timeoutSeconds: 1
+  hpa:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    behavior:
+      scaleDown:
+        stabilizationWindowSeconds: 180
+  securityContext:
+    runAsUser: 0
+  deployStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+
+ingress:
+  enabled: true
+  annotations:
+  hosts:
+  - name: localhost
+  - name: interview.local
+  tls: []
+  # - secretName: interview-app-tls
+  #   hosts:
+  #   - interview.local
+
+imagePullSecret:
+  # registry: https://index.docker.io/v1/
+  # username: <your-username>
+  # password: <your-password>
+
+networkPolicy:
+  allowIngressOnlyWithinNamespace: true

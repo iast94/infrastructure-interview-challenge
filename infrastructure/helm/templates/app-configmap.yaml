@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name | trunc 46   }}-app-init-scripts
+  labels:
+    component: app-configmap
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+data:
+  wait-db.sh: |
+    while true; do
+      mysql -h $DB_HOST -p$DB_PASSWORD -u $DB_USER -e \
+      "USE {{ .Values.app.database.name | trunc 64 }};" 2>/dev/null
+
+      if [ $? -eq 0 ]; then
+          echo "Database is ready!"
+          break
+      else
+          echo "Waiting for database be ready..."
+          sleep 5
+      fi
+    done

@@ -1,0 +1,24 @@
+{{- if .Values.webserver.enabled  }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name | trunc 41   }}-webserver-init-config
+  labels:
+    component: webserver-init-configmap
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+data:
+  wait-for-app.sh: |
+    while true; do
+      wget -q \
+      http://{{ .Release.Name | trunc 55 }}-app-svc:{{ .Values.app.port }}/posts \
+      -O /dev/null
+
+      if [ $? -eq 0 ]; then
+          echo "Application is ready!"
+          break
+      else
+          echo "Waiting for application be ready..."
+          sleep 5
+      fi
+    done
+{{- end }}

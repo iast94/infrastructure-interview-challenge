@@ -1,0 +1,109 @@
+{{- if .Values.webserver.enabled  }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name | trunc 53   }}-webserver
+  labels:
+    component: webserver
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  replicas: {{ .Values.webserver.replicas }}
+  selector:
+    matchLabels:
+      component: webserver
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  strategy:
+    {{ .Values.webserver.deployStrategy | toYaml | nindent 4}}
+  template:
+    metadata:
+      labels:
+        component: webserver
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      {{- if .Values.webserver.tryToSchedulePodsInDifferentNodes  }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - webserver
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ .Chart.Name }}
+                - key: app.kubernetes.io/instance
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+                - key: app.kubernetes.io/version
+                  operator: In
+                  values:
+                  - {{ .Chart.AppVersion | quote }}
+                - key: app.kubernetes.io/managed-by
+                  operator: In
+                  values:
+                  - {{ .Release.Service }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+      initContainers:
+      - name: wait-for-app
+        image: busybox:1.28
+        command:
+        - /bin/sh
+        - -c
+        - /script/wait-for-app.sh
+        volumeMounts:
+        - name: webserver-init-config
+          subPath: wait-for-app.sh
+          mountPath: /script/wait-for-app.sh
+      containers:
+      - name: webserver
+        image: {{ .Values.webserver.image }}
+        imagePullPolicy: {{ .Values.webserver.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.webserver.port }}
+        volumeMounts:
+        - name: webserver-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          {{ .Values.webserver.resources | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.webserver.livenessProbe.httpGetPath }}
+            port: {{ .Values.webserver.port }}
+          initialDelaySeconds: {{ .Values.webserver.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webserver.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.webserver.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.webserver.readinessProbe.httpGetPath }}
+            port: {{ .Values.webserver.port }}
+          initialDelaySeconds: {{ .Values.webserver.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.webserver.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.webserver.readinessProbe.timeoutSeconds }}
+        securityContext:
+          {{- .Values.webserver.securityContext | toYaml | nindent 10 }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
+      volumes:
+      - name: webserver-config
+        configMap:
+          name: {{ .Release.Name | trunc 46 }}-webserver-config
+      - name: webserver-init-config
+        configMap:
+          name: {{ .Release.Name | trunc 41 }}-webserver-init-config
+          defaultMode: 0550
+{{- end  }}

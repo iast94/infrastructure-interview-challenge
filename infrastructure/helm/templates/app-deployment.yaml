@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name | trunc 59   }}-app
+  labels:
+    component: app
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      component: app
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  strategy:
+    {{ .Values.app.deployStrategy | toYaml | nindent 4}}
+  template:
+    metadata:
+      labels:
+        component: app
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      {{- if .Values.app.tryToSchedulePodsInDifferentNodes  }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - app
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ .Chart.Name }}
+                - key: app.kubernetes.io/instance
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+                - key: app.kubernetes.io/version
+                  operator: In
+                  values:
+                  - {{ .Chart.AppVersion | quote }}
+                - key: app.kubernetes.io/managed-by
+                  operator: In
+                  values:
+                  - {{ .Release.Service }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+      initContainers:
+      - name: wait-for-database
+        image: {{ .Values.database.image }}
+        env:
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_HOST
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_PASSWORD
+        command:
+        - /bin/sh
+        - -c
+        - /script/wait-db.sh
+        volumeMounts:
+        - name: init-scripts
+          subPath: wait-db.sh
+          mountPath: /script/wait-db.sh
+      - name: run-migrations
+        image: {{ .Values.app.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name | trunc 50   }}-db-conn-info
+        command:
+        - yarn
+        - typeorm
+        - migration:run
+      containers:
+      - name: app
+        image: {{ .Values.app.image }}
+        imagePullPolicy: {{ .Values.app.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.app.port }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name | trunc 50   }}-db-conn-info
+        resources:
+          {{- .Values.app.resources | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.app.livenessProbe.httpGetPath }}
+            port: {{ .Values.app.port }}
+          initialDelaySeconds: {{ .Values.app.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.app.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.app.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.app.readinessProbe.httpGetPath }}
+            port: {{ .Values.app.port }}
+          initialDelaySeconds: {{ .Values.app.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.app.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.app.readinessProbe.timeoutSeconds }}
+        securityContext:
+         {{- .Values.app.securityContext | toYaml | nindent 10 }}
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Release.Name | trunc 42 }}-registry-cred
+      {{- end }}
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: {{ .Release.Name | trunc 46   }}-app-init-scripts
+          defaultMode: 0550

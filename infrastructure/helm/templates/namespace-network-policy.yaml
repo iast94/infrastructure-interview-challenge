@@ -1,0 +1,32 @@
+{{- if .Values.networkPolicy.allowIngressOnlyWithinNamespace }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name | trunc 48   }}-network-policy
+  labels:
+    component: namespace-network-policy
+    {{- include "infra-interview-test.labels" . | nindent 4}}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+      app.kubernetes.io/managed-by: {{ .Release.Service }}
+  policyTypes:
+    - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{ .Release.Namespace }}
+    ports:
+    - protocol: TCP
+      port: {{ .Values.app.port }}
+    - protocol: TCP
+      port: 3306
+    {{- if .Values.webserver.enabled }}
+    - protocol: TCP
+      port: {{ .Values.webserver.port }}
+    {{- end }}
+{{- end }}
