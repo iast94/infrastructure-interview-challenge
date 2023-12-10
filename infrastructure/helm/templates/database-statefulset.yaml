@@ -31,19 +31,31 @@ spec:
         image: {{ .Values.database.image }}
         imagePullPolicy: {{ .Values.app.imagePullPolicy }}
         ports:
-        {{- if or (eq .Values.database.type "mariadb") (eq .Values.database.type "mysql") }}
         - containerPort: 3306
-        {{- else if eq .Values.database.type "postgresql" }}
-        - containerPort: 5432
-        {{- end }}
-        envFrom:
-        - secretRef:
-            name: {{ .Release.Name | trunc 55   }}-db-info
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 55   }}-db-info
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_USERNAME
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50 }}-db-conn-info
+              key: TYPEORM_DATABASE
         volumeMounts:
         - name: data
           mountPath: /var/lib/mysql
-        - name: init-scripts
-          mountPath: /docker-entrypoint-initdb.d
         livenessProbe:
           exec:
             command: ["mysqladmin", "ping", "-p$MYSQL_ROOT_PASSWORD"]
@@ -62,11 +74,6 @@ spec:
       imagePullSecrets:
       - name: {{ .Release.Name | trunc 42 }}-registry-cred
       {{- end }}
-      volumes:
-      - name: init-scripts
-        configMap:
-          name: {{ .Release.Name | trunc 41   }}-database-init-scripts
-          defaultMode: 0550
   volumeClaimTemplates:
   - metadata:
       name: data

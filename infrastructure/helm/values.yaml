@@ -5,6 +5,9 @@ app:
   minAvailable: "75%"
   imagePullPolicy: Always
   tryToSchedulePodsInDifferentNodes: true
+  database:
+    name: socialmedia
+    password: change-it
   service:
     type: ClusterIP
   resources:
@@ -48,12 +51,9 @@ app:
 database:
   type: mariadb
   image: mariadb:5.5
-  dbName: interview
+  rootPassword: change-it
   service:
     type: ClusterIP
-  user:
-    name: root
-    password: testpassword
   livenessProbe:
     initialDelaySeconds: 20
     periodSeconds: 10

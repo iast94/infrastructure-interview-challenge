@@ -64,6 +64,11 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name | trunc 50   }}-db-conn-info
               key: TYPEORM_HOST
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name | trunc 50   }}-db-conn-info
+              key: TYPEORM_USERNAME
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
