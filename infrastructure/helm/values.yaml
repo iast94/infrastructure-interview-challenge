@@ -1,7 +1,7 @@
 app:
   image: talessrc/infrastructure-interview-app:1.0.0
   port: 3000
-  replicas: 2
+  replicas: 3
   minAvailable: "75%"
   imagePullPolicy: Always
   tryToSchedulePodsInDifferentNodes: true
@@ -9,25 +9,25 @@ app:
     type: ClusterIP
   resources:
     requests:
-      cpu: "0.2"
-      memory: 80Mi
+      cpu: "0.3"
+      memory: 150Mi
     limits:
       cpu: "0.5"
-      memory: 150Mi
+      memory: 300Mi
   livenessProbe:
     httpGetPath: /posts
-    initialDelaySeconds: 30
+    initialDelaySeconds: 40
     periodSeconds: 10
     timeoutSeconds: 2
   readinessProbe:
     httpGetPath: /posts
-    initialDelaySeconds: 15
+    initialDelaySeconds: 20
     periodSeconds: 5
     timeoutSeconds: 2
   hpa:
     enabled: true
-    minReplicas: 2
-    maxReplicas: 5
+    minReplicas: 3
+    maxReplicas: 6
     metrics:
     - type: Resource
       resource:
@@ -59,7 +59,7 @@ database:
     periodSeconds: 10
     timeoutSeconds: 5
   readinessProbe:
-    initialDelaySeconds: 5
+    initialDelaySeconds: 10
     periodSeconds: 2
     timeoutSeconds: 1
   securityContext:
@@ -76,11 +76,11 @@ webserver:
     type: ClusterIP
   resources:
     requests:
-      cpu: "0.05"
+      cpu: "0.15"
       memory: 50Mi
     limits:
-      cpu: "0.15"
-      memory: 300Mi
+      cpu: "0.3"
+      memory: 200Mi
   livenessProbe:
     httpGetPath: /posts
     initialDelaySeconds: 30
@@ -92,7 +92,7 @@ webserver:
     periodSeconds: 2
     timeoutSeconds: 1
   hpa:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 3
     metrics:
