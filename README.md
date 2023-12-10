@@ -42,3 +42,25 @@ following value: ```127.0.0.1     <your-url>```
 To build and push image with a single command, you can run ```./build-and-push-image.sh``` 
 
 It also provides a ```-h``` flag to help you with the parameters.
+
+## Tests
+
+Using the flag ```-t``` two tests are executed to ensure accomplishment of SLOs.
+
+SLOs:
+
+1) 90% of the requests must return a non 5XX status code within a range of 31000 requests.
+
+2) 90% of the requests must return a non 5XX status code within a range of 1.000 requests during a deployment.
+
+Their respective tests:
+
+1) Using apache ab to get the benchmarking
+of the server, the script makes 31000
+requests in 6 parts: 1000, 2000, 4000, 6000, 8000, 10000. In real life the traffic increse would be more natural, so the pods would get ready on time, to emulate it, the script gives 10s without
+requests to the pods get ready instead of flutuate the number of requests.
+
+2) Using apache ab to get the benchmarking
+of the server, the script makes 1000
+requests while a deployment is running
+with rolling update strategy.
