@@ -95,6 +95,6 @@ if [[ -n $infra_test ]]; then
 fi
 
 if [[ -n $destroy_after_finish_steps ]]; then
-  echo -e "\nDestroying infrastructure..."
+  echo -e "\nDestroying infrastructure... \n"
   terraform -chdir=infrastructure/terraform/environments/local destroy -auto-approve
 fi
