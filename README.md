@@ -18,14 +18,14 @@ in the cluster creation):
 | terraform | 1.4.0 |
 | docker | 23.0.5 |
 
-To configure the local stack run ```./configure-local-stack.sh``` inside the repository 
+To configure the local stack run ```./local-stack.sh``` inside the repository 
 root folder.
 
 This script will initiate and apply the terraform module, install/upgrade the helm 
 chart version and test (if asked) its scalability under a high load of requests.
 
 If you have any questions about the accepted flags and their default values, you 
-can run ```./configure-local-stack.sh -h```
+can run ```./local-stack.sh -h```
 
 ### Additional components
 
