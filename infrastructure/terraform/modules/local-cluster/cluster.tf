@@ -42,6 +42,6 @@ resource "kind_cluster" "main" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl wait -n ingress-nginx --for=condition=ready --timeout=60s pod -l app.kubernetes.io/component=controller"
+    command = "kubectl wait -n ingress-nginx --for=condition=ready --timeout=120s pod -l app.kubernetes.io/component=controller"
   }
 }
