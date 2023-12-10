@@ -54,6 +54,14 @@ database:
   rootPassword: change-it
   service:
     type: ClusterIP
+  pvcStorage: "2Gi"
+  resources:
+    requests:
+      cpu: "0.3"
+      memory: 100Mi
+    limits:
+      cpu: "0.6"
+      memory: 300Mi
   livenessProbe:
     initialDelaySeconds: 20
     periodSeconds: 10

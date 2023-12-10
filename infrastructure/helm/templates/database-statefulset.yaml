@@ -30,6 +30,8 @@ spec:
       - name: database
         image: {{ .Values.database.image }}
         imagePullPolicy: {{ .Values.app.imagePullPolicy }}
+        resources:
+          {{- .Values.database.resources | toYaml | nindent 10 }}
         ports:
         - containerPort: 3306
         env:
@@ -83,4 +85,4 @@ spec:
       storageClassName: "standard"
       resources:
         requests:
-          storage: "1Gi"
+          storage: {{ .Values.database.pvcStorage }}
