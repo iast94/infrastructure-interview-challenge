@@ -57,7 +57,7 @@ spec:
       {{- end }}
       initContainers:
       - name: wait-for-database
-        image: mariadb:5.5
+        image: {{ .Values.database.image }}
         env:
         - name: DB_HOST
           valueFrom:

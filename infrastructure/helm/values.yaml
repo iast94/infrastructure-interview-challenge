@@ -10,9 +10,9 @@ app:
   resources:
     requests:
       cpu: "0.3"
-      memory: 150Mi
+      memory: 100Mi
     limits:
-      cpu: "0.5"
+      cpu: "0.6"
       memory: 300Mi
   livenessProbe:
     httpGetPath: /posts
